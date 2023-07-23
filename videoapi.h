@@ -3,13 +3,13 @@
 
 #include <QtCore>
 
-#include "searchparams.h"
-#include "videosource.h"
-
 class VideoAPI {
 public:
     enum Impl { YT3, IV, JS };
     static Impl impl() { return JS; }
+
+    static QString videoIdFromUrl(const QString &url);
+    static QTime videoTimestampFromUrl(const QString &url);
 
 private:
     VideoAPI() {}

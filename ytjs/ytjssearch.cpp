@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "searchparams.h"
 #include "video.h"
+#include "videoapi.h"
 #include "ytsearch.h"
 
 #include "js.h"
@@ -71,7 +72,7 @@ void YTJSSearch::loadVideos(int max, int startIndex) {
     if (!searchParams->keywords().isEmpty()) {
         if (searchParams->keywords().startsWith("http://") ||
             searchParams->keywords().startsWith("https://")) {
-            q = YTSearch::videoIdFromUrl(searchParams->keywords());
+            q = VideoAPI::videoIdFromUrl(searchParams->keywords());
         } else
             q = searchParams->keywords();
     }
