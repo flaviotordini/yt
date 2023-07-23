@@ -2,7 +2,6 @@
 
 #include "js.h"
 #include "videodefinition.h"
-#include "yt3.h"
 
 YTJSVideo::YTJSVideo(const QString &videoId, QObject *parent)
     : QObject(parent), videoId(videoId), definitionCode(0) {}
@@ -34,7 +33,7 @@ void YTJSVideo::loadStreamUrl() {
                 }
 
                 qDebug() << "available formats" << urlMap.keys();
-                const VideoDefinition &definition = YT3::instance().maxVideoDefinition();
+                const VideoDefinition &definition = VideoDefinition::maxVideoDefinition();
                 const QVector<VideoDefinition> &definitions = VideoDefinition::getDefinitions();
                 int previousIndex = qMax(definitions.indexOf(definition), 0);
                 for (; previousIndex >= 0; previousIndex--) {
