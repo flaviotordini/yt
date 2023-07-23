@@ -182,7 +182,7 @@ void YTJSSearch::loadVideos(int max, int startIndex) {
 
                     Video *video = new Video();
 
-                    QString id = YTSearch::videoIdFromUrl(i["link"].toString());
+                    QString id = VideoAPI::videoIdFromUrl(i["link"].toString());
                     video->setId(id);
 
                     QString title = i["title"].toString();
