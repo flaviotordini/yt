@@ -2,7 +2,6 @@
 #include "datautils.h"
 #include "http.h"
 #include "httputils.h"
-#include "jsfunctions.h"
 #include "playlistitemdelegate.h"
 #include "videodefinition.h"
 
@@ -49,7 +48,7 @@ void Video::setWebpage(const QString &value) {
 
     // Get Video ID
     if (id.isEmpty()) {
-        QRegularExpression re(JsFunctions::instance()->videoIdRE());
+        QRegularExpression re("(?:&|\\?)v=([0-9A-Za-z_-]+)");
         QRegularExpressionMatch match = re.match(webpage);
         if (!match.hasMatch()) {
             qWarning() << QString("Cannot get video id for %1").arg(webpage);
