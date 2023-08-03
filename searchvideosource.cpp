@@ -4,11 +4,15 @@
 #include "video.h"
 #include "videoapi.h"
 
+#ifdef YT_YT3
 #include "ytsearch.h"
+#endif
 
+#ifdef YT_IV
 #include "ivchannelsource.h"
 #include "ivsearch.h"
 #include "ivsinglevideosource.h"
+#endif
 
 #include "ytjschannelsource.h"
 #include "ytjssearch.h"
@@ -20,24 +24,31 @@ SearchVideoSource::SearchVideoSource(SearchParams *searchParams, QObject *parent
 void SearchVideoSource::loadVideos(int max, int startIndex) {
     if (!source) {
         aborted = false;
-        if (VideoAPI::impl() == VideoAPI::YT3) {
-            YTSearch *ytSearch = new YTSearch(searchParams);
-            ytSearch->setAsyncDetails(true);
-            // --- connect(ytSearch, SIGNAL(gotDetails()), playlistModel, SLOT(emitDataChanged()));
-            source = ytSearch;
-        } else if (VideoAPI::impl() == VideoAPI::IV) {
-            if (searchParams->channelId().isEmpty()) {
-                source = new IVSearch(searchParams);
-            } else {
-                source = new IVChannelSource(searchParams);
-            }
-        } else if (VideoAPI::impl() == VideoAPI::JS) {
+
+        if (VideoAPI::impl() == VideoAPI::JS) {
             if (searchParams->channelId().isEmpty()) {
                 source = new YTJSSearch(searchParams);
             } else {
                 source = new YTJSChannelSource(searchParams);
             }
         }
+#ifdef YT_YT3
+        else if (VideoAPI::impl() == VideoAPI::YT3) {
+            YTSearch *ytSearch = new YTSearch(searchParams);
+            ytSearch->setAsyncDetails(true);
+            // --- connect(ytSearch, SIGNAL(gotDetails()), playlistModel, SLOT(emitDataChanged()));
+            source = ytSearch;
+        }
+#endif
+#ifdef YT_IV
+        else if (VideoAPI::impl() == VideoAPI::IV) {
+            if (searchParams->channelId().isEmpty()) {
+                source = new IVSearch(searchParams);
+            } else {
+                source = new IVChannelSource(searchParams);
+            }
+        }
+#endif
         connectSource(max, startIndex);
     }
     source->loadVideos(max, startIndex);
@@ -73,6 +84,8 @@ void SearchVideoSource::connectSource(int max, int startIndex) {
     connect(source, &VideoSource::error, this, [this, max, startIndex](auto msg) {
         qDebug() << source << msg;
         if (aborted) return;
+
+#ifdef YT_IV
         if (QLatin1String(source->metaObject()->className()).startsWith(QLatin1String("YTJS"))) {
             qDebug() << "Falling back to IV";
             source->deleteLater();
@@ -83,8 +96,9 @@ void SearchVideoSource::connectSource(int max, int startIndex) {
             }
             connectSource(max, startIndex);
             source->loadVideos(max, startIndex);
-        } else {
-            emit error(msg);
+            return;
         }
+#endif
+        emit error(msg);
     });
 }

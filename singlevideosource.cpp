@@ -3,9 +3,15 @@
 #include "video.h"
 #include "videoapi.h"
 
-#include "ivsinglevideosource.h"
 #include "ytjssinglevideosource.h"
+
+#ifdef YT_IV
+#include "ivsinglevideosource.h"
+#endif
+
+#ifdef YT_YT3
 #include "ytsinglevideosource.h"
+#endif
 
 SingleVideoSource::SingleVideoSource(QObject *parent) : VideoSource(parent) {}
 
@@ -28,13 +34,21 @@ void SingleVideoSource::setVideoId(const QString &value) {
 void SingleVideoSource::loadVideos(int max, int startIndex) {
     if (!source) {
         aborted = false;
+#ifdef YT_YT3
         if (VideoAPI::impl() == VideoAPI::YT3) {
             auto s = setupSource(new YTSingleVideoSource());
             s->setAsyncDetails(true);
             source = s;
-        } else if (VideoAPI::impl() == VideoAPI::IV) {
+        }
+#endif
+
+#ifdef YT_IV
+        if (VideoAPI::impl() == VideoAPI::IV) {
             source = setupSource(new IVSingleVideoSource());
-        } else if (VideoAPI::impl() == VideoAPI::JS) {
+        }
+#endif
+
+        if (VideoAPI::impl() == VideoAPI::JS) {
             source = setupSource(new YTJSSingleVideoSource());
         }
         connectSource(max, startIndex);
@@ -80,6 +94,8 @@ void SingleVideoSource::connectSource(int max, int startIndex) {
     connect(source, &VideoSource::error, this, [this, max, startIndex](auto msg) {
         qDebug() << source << msg;
         if (aborted) return;
+
+#ifdef YT_IV
         if (QLatin1String(source->metaObject()->className()).startsWith(QLatin1String("YTJS"))) {
             qDebug() << "Falling back to IV";
             source->deleteLater();
@@ -88,8 +104,10 @@ void SingleVideoSource::connectSource(int max, int startIndex) {
 
             connectSource(max, startIndex);
             source->loadVideos(max, startIndex);
-        } else {
-            emit error(msg);
+            return;
         }
+#endif
+
+        emit error(msg);  
     });
 }
