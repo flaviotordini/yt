@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 #include "searchparams.h"
 #include "video.h"
-#include "ytsearch.h"
 
 #include "js.h"
 

@@ -4,7 +4,6 @@
 #include "searchparams.h"
 #include "video.h"
 #include "videoapi.h"
-#include "ytsearch.h"
 
 #include "js.h"
 
