@@ -1,5 +1,4 @@
 INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
 
 # include($$PWD/yt3/yt3.pri)
 # include($$PWD/invidious/invidious.pri)
